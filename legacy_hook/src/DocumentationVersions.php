@@ -29,9 +29,13 @@ readonly class DocumentationVersions
      *
      * @return Response
      */
-    public function getVersions(string $format = 'HTML'): Response
+    public function getVersions(string $format = 'HTML', $url = ''): Response
     {
-        $pathSegments = $this->resolvePathSegments();
+        if ($url === '') {
+            $url = $this->request->getQueryParams()['url'] ?? '';
+        }
+
+        $pathSegments = $this->resolvePathSegments($url);
         if (count($pathSegments) < 5) {
             return $this->getEmptyResponse();
         }
@@ -73,9 +77,8 @@ readonly class DocumentationVersions
         return $this->getJsonResponse($validatedVersions);
     }
 
-    protected function resolvePathSegments(): array
+    protected function resolvePathSegments(string $url = ''): array
     {
-        $url = $this->request->getQueryParams()['url'] ?? '';
         // /p/vendor/package/version/some/sub/page/Index.html/
         $urlPath = '/' . trim(parse_url($url)['path'] ?? '', '/') . '/';
 
@@ -181,6 +184,10 @@ readonly class DocumentationVersions
 
         $firstEntries = array_reverse($firstEntries);
         $secondEntries = array_reverse($secondEntries);
+
+        // TODO: Match this structure in PSR request object return
+        print_r($firstEntries);
+        print_r($secondEntries);
         return new Response(200, [], implode(chr(10), array_merge($firstEntries, $secondEntries)));
     }
 
