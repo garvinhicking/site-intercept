@@ -268,7 +268,18 @@ final readonly class DocumentationLinker
         } else {
             // CASE: Third party documentation, based on composer-keys like https://docs.typo3.org/p/georgringer/news
             //       A permalink like https://docs.typo3.org/permalink/someVendor-some-extension/ is resolved to https://docs.typo3.org/p/somevendor/some-extension/
-            $entrypoint = 'https://docs.typo3.org/p/' . preg_replace('/-/', '/', strtolower($repository), 1) . '/{typo3_version}/en-us/';
+            if (str_contains($repository, '/')) {
+                // A vendor-name may also contain dashes. This would make resolving something like "ven-dor/pack-age" into "ven-dor-pack-age" with the slash syntax.
+                // This could not possibly be reverted without trying each dash to be replaced with a slash and looking up all sorts of variants.
+                // Thus, the only way to deal with that is to rely on the "ven-dor/pack-age" notation from the incoming URL. Legacy URLs with dash notation need
+                // to be deprecated due to this ambiguity. Invalid incoming permalinks like "some/ven/dor/some/pack/age" will just fail being resolved
+                // TL;DR: If a slash is part of the incoming permalink here, we take it as-is, no questions asked
+                $entrypoint = 'https://docs.typo3.org/p/' . strtolower($repository) . '/{typo3_version}/en-us/';
+            } else {
+                // No slashes are contained, so assume a "vendorWithoutSlashes-package-with-any-kind" notation in which the first slash separates vendor from package name
+                // (This is a hack, and breaks with vendor names that have dashes. See above)
+                $entrypoint = 'https://docs.typo3.org/p/' . preg_replace('/-/', '/', strtolower($repository), 1) . '/{typo3_version}/en-us/';
+            }
             $useCoreVersionResolving = false;
         }
 

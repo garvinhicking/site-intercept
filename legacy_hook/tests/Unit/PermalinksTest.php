@@ -314,6 +314,14 @@ class PermalinksTest extends TestCase
             'georgringer/news:how_to_rewrite_urls@10.0',
             'https://docs.typo3.org/p/georgringer/news/10.0/en-us/Tutorials/BestPractice/Routing/Index.html#how-to-rewrite-urls',
         ];
+        yield 'vendorname with dash, slash syntax' => [
+            'dummy-vendor/dummy:dupe-entry',
+            'https://docs.typo3.org/p/dummy-vendor/dummy/main/en-us/Index.html#dupe-entry',
+        ];
+        yield 'vendorname with dash and reponanme with slash, slash syntax' => [
+            'dummy-vendor/dummy-dummy:dupe-entry',
+            'https://docs.typo3.org/p/dummy-vendor/dummy-dummy/main/en-us/Index.html#dupe-entry',
+        ];
     }
 
     #[DataProvider('redirectWorksDataProvider')]
